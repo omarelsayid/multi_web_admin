@@ -17,20 +17,18 @@ class _LoginScreenState extends State<LoginScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey();
 
   final AuthController _authController = AuthController();
-
+  bool _isLoading = false;
   _loginUsers() async {
     if (_formKey.currentState!.validate()) {
       String res = await _authController.loginUsers(email, password);
-      if (res == 'sccuess') {
-        return Navigator.push(context, MaterialPageRoute(
-          builder: (context) {
-            return const MainScreen();
-          },
-        ));
-      } else {
-        return showSnakBar(context, res);
-      }
+      return Navigator.pushReplacement(context,
+          MaterialPageRoute(builder: (context) {
+        return const MainScreen();
+      }));
     } else {
+      setState(() {
+        _isLoading = true;
+      });
       return showSnakBar(context, 'Please feilds must not be empty');
     }
   }
@@ -68,6 +66,7 @@ class _LoginScreenState extends State<LoginScreen> {
             Padding(
               padding: const EdgeInsets.all(13.0),
               child: TextFormField(
+                obscureText: true,
                 validator: (value) {
                   if (value!.isEmpty) {
                     return 'Please password filed must not be empty ';
@@ -91,14 +90,16 @@ class _LoginScreenState extends State<LoginScreen> {
                 decoration: BoxDecoration(
                     color: Colors.yellow.shade900,
                     borderRadius: BorderRadius.circular(10)),
-                child: const Center(
-                  child: Text(
-                    'Login',
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 19,
-                        fontWeight: FontWeight.bold),
-                  ),
+                child: Center(
+                  child: _isLoading
+                      ? const CircularProgressIndicator()
+                      : const Text(
+                          'Login',
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 19,
+                              fontWeight: FontWeight.bold),
+                        ),
                 ),
               ),
             ),
